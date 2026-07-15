@@ -2,9 +2,12 @@
 import { Badge } from '@astrojs/starlight/components';
 import DefaultPageTitle from '@astrojs/starlight/components/PageTitle.astro';
 import PageViews from "./PageViews.astro";
+import contributorsByDoc from '../../.output/contributors.json';
 
 const { entry } = Astro.locals.starlightRoute;
 const tags = entry.data.tags ?? [];
+type Contributor = { name: string; avatar?: string; profile?: string; commits: number };
+const contributors = (contributorsByDoc as Record<string, Contributor[]>)[entry.id] ?? [];
 ---
 
 <DefaultPageTitle />
@@ -24,6 +27,32 @@ const tags = entry.data.tags ?? [];
 				</li>
 			))}
 		</ul>
+	)
+}
+
+{
+	contributors.length > 0 && (
+		<div aria-label="本文编辑者" style="display: flex; align-items: center; gap: 0.5rem; margin-top: 1rem;">
+			<span>编辑者</span>
+			<ul style="display: flex; gap: 0.5rem; padding: 0; margin: 0; list-style: none;">
+				{contributors.map((contributor) => (
+					<li>
+						{contributor.profile ? (
+							<a href={contributor.profile} title={`${contributor.name}（${contributor.commits} 次提交）`}>
+								<img src={contributor.avatar} alt={contributor.name} width="28" height="28" loading="lazy" style="display: block; border-radius: 50%;" />
+							</a>
+						) : (
+							<span
+								title={`${contributor.name}（${contributor.commits} 次提交）`}
+								style="display: inline-flex; align-items: center; justify-content: center; width: 1.75rem; height: 1.75rem; border-radius: 50%; background: var(--sl-color-gray-5);"
+							>
+								{contributor.name.slice(0, 1)}
+							</span>
+						)}
+					</li>
+				))}
+			</ul>
+		</div>
 	)
 }
 
