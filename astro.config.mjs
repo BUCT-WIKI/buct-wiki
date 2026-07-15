@@ -14,6 +14,7 @@ export default defineConfig({
 			title: 'Buct Wiki',
 			components: {
 				PageTitle: './src/components/PageTitle.astro',
+				Footer: './src/components/Footer.astro',
 			},
 			// social: [{ icon: 'github', label: 'GitHub', href: 'https://github.com/withastro/starlight' }],
 			sidebar: [

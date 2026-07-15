@@ -1,0 +1,93 @@
+<section
+	aria-labelledby="feedback-title"
+	style="margin-top: 3rem; padding: 1.25rem; border: 1px solid var(--sl-color-hairline); border-radius: 0.5rem;"
+>
+	<h2 id="feedback-title" style="margin: 0; font-size: var(--sl-text-xl);">内容反馈</h2>
+	<p style="margin: 0.5rem 0 1.25rem; color: var(--sl-color-gray-3);">发现问题或有改进建议？欢迎告诉我们。</p>
+
+	<form id="feedback-form" style="display: grid; gap: 0.5rem;">
+		<label for="feedback-type">反馈类型</label>
+		<select
+			id="feedback-type"
+			name="type"
+			required
+			style="width: 100%; box-sizing: border-box; padding: 0.65rem 0.75rem; border: 1px solid var(--sl-color-gray-5); border-radius: 0.35rem; background: var(--sl-color-bg); color: var(--sl-color-white); font: inherit;"
+		>
+			<option value="factual_error">事实错误</option>
+			<option value="outdated">内容过时</option>
+			<option value="missing_content">缺少内容</option>
+			<option value="unclear">表述不清</option>
+			<option value="typo">错别字或格式问题</option>
+			<option value="broken_link">链接失效</option>
+			<option value="suggestion">改进建议</option>
+			<option value="other">其他</option>
+		</select>
+
+		<label for="feedback-content" style="margin-top: 0.75rem;">详细说明</label>
+		<textarea
+			id="feedback-content"
+			name="content"
+			rows="5"
+			minlength="10"
+			maxlength="2000"
+			placeholder="请描述具体问题，至少 10 个字符"
+			required
+			style="width: 100%; box-sizing: border-box; padding: 0.65rem 0.75rem; border: 1px solid var(--sl-color-gray-5); border-radius: 0.35rem; background: var(--sl-color-bg); color: var(--sl-color-white); font: inherit; resize: vertical;"
+		></textarea>
+
+		<div style="display: flex; align-items: center; gap: 0.75rem; margin-top: 0.75rem; flex-wrap: wrap;">
+			<button
+				type="submit"
+				style="padding: 0.55rem 1rem; border: 0; border-radius: 0.35rem; background: var(--sl-color-text-accent); color: var(--sl-color-black); font: inherit; font-weight: 600; cursor: pointer;"
+			>
+				提交反馈
+			</button>
+			<span id="feedback-status" role="status" aria-live="polite"></span>
+		</div>
+	</form>
+</section>
+
+<script>
+	const form = document.querySelector<HTMLFormElement>('#feedback-form');
+	const status = document.querySelector<HTMLElement>('#feedback-status');
+	const submitButton = form?.querySelector<HTMLButtonElement>('button[type="submit"]');
+
+	form?.addEventListener('submit', async (event) => {
+		event.preventDefault();
+
+		if (!form.reportValidity() || !status || !submitButton) return;
+
+		const formData = new FormData(form);
+		submitButton.disabled = true;
+		status.dataset.state = '';
+		status.style.color = '';
+		status.textContent = '正在提交…';
+
+		try {
+			const response = await fetch('/api/feedback', {
+				method: 'POST',
+				headers: { 'Content-Type': 'application/json' },
+				body: JSON.stringify({
+					path: window.location.pathname,
+					type: formData.get('type'),
+					content: formData.get('content'),
+				}),
+			});
+
+			if (!response.ok) {
+				throw new Error('Feedback request failed');
+			}
+
+			form.reset();
+			status.dataset.state = 'success';
+			status.style.color = 'var(--sl-color-green-high)';
+			status.textContent = '感谢反馈，我们已收到。';
+		} catch {
+			status.dataset.state = 'error';
+			status.style.color = 'var(--sl-color-red-high)';
+			status.textContent = '提交失败，请稍后重试。';
+		} finally {
+			submitButton.disabled = false;
+		}
+	});
+</script>
