@@ -5,6 +5,9 @@ import vue from '@astrojs/vue';
 
 // https://astro.build/config
 export default defineConfig({
+	markdown: {
+		gfm: true,
+	},
 	integrations: [
 		vue(),
 		starlight({
