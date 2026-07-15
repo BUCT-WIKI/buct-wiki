@@ -1,6 +1,6 @@
 import { execFileSync } from 'node:child_process';
-import { readdir, writeFile } from 'node:fs/promises';
-import { extname, join, relative, sep } from 'node:path';
+import { mkdir, readdir, writeFile } from 'node:fs/promises';
+import { dirname, extname, join, relative, sep } from 'node:path';
 
 const token = process.env.GITHUB_TOKEN;
 const repository = process.env.CONTENT_GITHUB_REPOSITORY ?? 'customysc/buct-wiki-content';
@@ -81,5 +81,6 @@ const result = Object.fromEntries(Array.from(documents, ([id, commits]) => {
 	return [id, Array.from(contributors.values()).sort((a, b) => b.commits - a.commits)];
 }));
 
+await mkdir(dirname(output), { recursive: true });
 await writeFile(output, `${JSON.stringify(result, null, 2)}\n`);
 console.log(`Generated contributors for ${documents.size} documents.`);
