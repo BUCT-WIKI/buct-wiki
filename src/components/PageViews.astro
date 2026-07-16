@@ -4,17 +4,18 @@
 <span id="page-views" aria-live="polite">阅读量：...</span>
 
 <script>
+	import { requestD1Function } from '../utils/d1-api';
+
     const el = document.querySelector('#page-views');
 
     if (el) {
-        fetch('/api/page-views', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ path: window.location.pathname }),
-        })
-            .then((res) => res.json())
+        requestD1Function<{ views: number }>('/api/page-views', {
+			path: window.location.pathname,
+		})
             .then((data) => {
-                if (typeof data.views === 'number') {
+				if (data === null) {
+					el.textContent = '阅读量：--';
+				} else if (typeof data.views === 'number') {
                     el.textContent = `阅读量：${data.views}`;
                 }
             })

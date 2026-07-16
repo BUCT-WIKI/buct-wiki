@@ -48,6 +48,8 @@
 </section>
 
 <script>
+	import { requestD1Function } from '../utils/d1-api';
+
 	const form = document.querySelector<HTMLFormElement>('#feedback-form');
 	const status = document.querySelector<HTMLElement>('#feedback-status');
 	const submitButton = form?.querySelector<HTMLButtonElement>('button[type="submit"]');
@@ -64,18 +66,15 @@
 		status.textContent = '正在提交…';
 
 		try {
-			const response = await fetch('/api/feedback', {
-				method: 'POST',
-				headers: { 'Content-Type': 'application/json' },
-				body: JSON.stringify({
-					path: window.location.pathname,
-					type: formData.get('type'),
-					content: formData.get('content'),
-				}),
+			const data = await requestD1Function<{ success: boolean }>('/api/feedback', {
+				path: window.location.pathname,
+				type: formData.get('type'),
+				content: formData.get('content'),
 			});
 
-			if (!response.ok) {
-				throw new Error('Feedback request failed');
+			if (data === null) {
+				status.textContent = '开发环境未提交反馈。';
+				return;
 			}
 
 			form.reset();
