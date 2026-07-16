@@ -8,6 +8,7 @@ export const collections = {
 		loader: docsLoader(),
 		schema: docsSchema({
 			extend: z.object({
+				type: z.enum(['general', 'official', 'experience']).default('general'),
 				tags: z.array(z.string()).default([]),
 				feedback: z.boolean().default(true),
 			}),

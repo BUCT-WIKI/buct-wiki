@@ -1,16 +1,32 @@
 ---
 import { Badge } from '@astrojs/starlight/components';
-import DefaultPageTitle from '@astrojs/starlight/components/PageTitle.astro';
 import PageViews from "./PageViews.astro";
 import contributorsByDoc from '../../.output/contributors.json';
 
 const { entry } = Astro.locals.starlightRoute;
 const tags = entry.data.tags ?? [];
+const typeLabels = {
+	official: '官方',
+	experience: '个人经验',
+} as const;
+const typeLabel = entry.data.type === 'general' ? undefined : typeLabels[entry.data.type];
 type Contributor = { name: string; avatar?: string; profile?: string; commits: number };
 const contributors = (contributorsByDoc as Record<string, Contributor[]>)[entry.id] ?? [];
 ---
 
-<DefaultPageTitle />
+<h1
+	id="_top"
+	style="display: flex; align-items: center; gap: 0.6rem; margin-top: 1rem; font-size: var(--sl-text-h1); line-height: var(--sl-line-height-headings); font-weight: 600; color: var(--sl-color-white);"
+>
+	{typeLabel && (
+		<span
+			style="flex: none; padding: 0.15em 0.45em; border: 1px solid var(--sl-color-accent); border-radius: 0.35rem; color: var(--sl-color-accent-high); font-size: 0.45em; line-height: 1.4;"
+		>
+			{typeLabel}
+		</span>
+	)}
+	{entry.data.title}
+</h1>
 
 {
 	tags.length > 0 && (
