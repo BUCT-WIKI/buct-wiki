@@ -1,7 +1,9 @@
 ---
 import DefaultFooter from '@astrojs/starlight/components/Footer.astro';
 import FeedbackForm from './FeedbackForm.astro';
+
+const { feedback } = Astro.locals.starlightRoute.entry.data;
 ---
 
-<FeedbackForm />
+{feedback && <FeedbackForm />}
 <DefaultFooter />
