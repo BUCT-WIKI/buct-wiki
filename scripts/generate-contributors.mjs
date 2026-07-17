@@ -6,6 +6,7 @@ const token = process.env.GITHUB_TOKEN;
 const repository = process.env.CONTENT_GITHUB_REPOSITORY ?? 'customysc/buct-wiki-content';
 const contentDir = 'src/content/docs/content';
 const output = '.output/contributors.json';
+const lastModifiedOutput = '.output/last-modified.json';
 
 if (!token) throw new Error('Missing GITHUB_TOKEN');
 
@@ -19,23 +20,28 @@ async function findDocuments(directory) {
 }
 
 const documents = new Map();
+const lastModifiedByDoc = new Map();
 const commitAuthors = new Map();
 
 for (const file of await findDocuments(contentDir)) {
 	const path = relative(contentDir, file).split(sep).join('/');
+	const id = `content/${path.slice(0, -extname(path).length)}`;
 	const history = execFileSync(
 		'git',
-		['-C', contentDir, 'log', '--follow', '--format=%H%x09%an', '--', path],
+		['-C', contentDir, 'log', '--follow', '--format=%H%x09%an%x09%aI', '--', path],
 		{ encoding: 'utf8' },
 	).trim();
 
 	const commits = history ? history.split('\n').map((line) => {
-		const [sha, name] = line.split('\t');
+		const [sha, name, authorDate] = line.split('\t');
 		commitAuthors.set(sha, { name });
+		if (!lastModifiedByDoc.has(id)) {
+			lastModifiedByDoc.set(id, authorDate);
+		}
 		return sha;
 	}) : [];
 
-	documents.set(`content/${path.slice(0, -extname(path).length)}`, commits);
+	documents.set(id, commits);
 }
 
 const unresolved = new Set(commitAuthors.keys());
@@ -83,4 +89,5 @@ const result = Object.fromEntries(Array.from(documents, ([id, commits]) => {
 
 await mkdir(dirname(output), { recursive: true });
 await writeFile(output, `${JSON.stringify(result, null, 2)}\n`);
+await writeFile(lastModifiedOutput, `${JSON.stringify(Object.fromEntries(lastModifiedByDoc), null, 2)}\n`);
 console.log(`Generated contributors for ${documents.size} documents.`);

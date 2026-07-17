@@ -2,6 +2,7 @@
 import { Badge } from '@astrojs/starlight/components';
 import PageViews from "./PageViews.astro";
 import contributorsByDoc from '../../.output/contributors.json';
+import lastModifiedByDoc from '../../.output/last-modified.json';
 
 const { entry } = Astro.locals.starlightRoute;
 const tags = entry.data.tags ?? [];
@@ -12,6 +13,13 @@ const typeLabels = {
 const typeLabel = entry.data.type === 'general' ? undefined : typeLabels[entry.data.type];
 type Contributor = { name: string; avatar?: string; profile?: string; commits: number };
 const contributors = (contributorsByDoc as Record<string, Contributor[]>)[entry.id] ?? [];
+const lastModified = (lastModifiedByDoc as Record<string, string>)[entry.id];
+const lastModifiedLabel = lastModified && new Date(lastModified).toLocaleDateString('zh-CN', {
+	timeZone: 'Asia/Shanghai',
+	year: 'numeric',
+	month: 'long',
+	day: 'numeric',
+});
 ---
 
 <h1
@@ -43,6 +51,14 @@ const contributors = (contributorsByDoc as Record<string, Contributor[]>)[entry.
 				</li>
 			))}
 		</ul>
+	)
+}
+
+{
+	lastModified && (
+		<p style="margin: 1rem 0 0; color: var(--sl-color-gray-3);">
+			最后修改于 <time datetime={lastModified}>{lastModifiedLabel}</time>
+		</p>
 	)
 }
 
