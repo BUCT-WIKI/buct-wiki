@@ -7,7 +7,7 @@
     "dev:cloudflare": "node scripts/generate-contributors.mjs && astro dev",
     "start": "astro dev",
     "build": "astro build",
-    "build:cloudflare": "node scripts/generate-contributors.mjs && astro build",
+    "build:cloudflare": "bash scripts/fetch-content.sh && node scripts/generate-contributors.mjs && astro build",
     "preview": "astro preview",
     "astro": "astro"
   },

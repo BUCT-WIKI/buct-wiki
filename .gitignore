@@ -5,6 +5,9 @@ dist/
 # Github Users
 .output/
 
+# content repository cloned during local and Cloudflare builds
+/src/content/docs/content/
+
 # dependencies
 node_modules/
 
