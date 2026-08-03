@@ -1,0 +1,38 @@
+/*
+ * 设置表头区域的背景色。
+ * var(--sl-color-gray-6) 是 Starlight 提供的主题颜色变量，
+ * 可以随亮色、暗色主题变化。
+ */
+.sl-markdown-content thead:not(:where(.not-content *)) {
+	background-color: var(--sl-color-gray-6);
+}
+
+/* 为每行第一列增加左侧留白，避免文字紧贴表格边缘。 */
+.sl-markdown-content table :is(th:first-child, td:first-child):not(:where(.not-content *)) {
+	padding-inline-start: 1rem;
+}
+
+/* 为每行最后一列增加右侧留白，与第一列保持对称。 */
+.sl-markdown-content table :is(th:last-child, td:last-child):not(:where(.not-content *)) {
+	padding-inline-end: 1rem;
+}
+
+/*
+ * 设置表格正文的奇数行背景色。
+ * 只选择 tbody 中的行，因此表头不会参与奇偶行计算。
+ *
+ * 第 1、3、5……行使用页面背景色。
+ */
+.sl-markdown-content tbody tr:nth-child(odd):not(:where(.not-content *)) {
+	background-color: var(--sl-color-bg);
+}
+
+/*
+ * 设置表格正文的偶数行背景色。
+ *
+ * 第 2、4、6……行使用灰色背景，
+ * 最终形成“白、灰、白、灰”的斑马纹效果。
+ */
+.sl-markdown-content tbody tr:nth-child(even):not(:where(.not-content *)) {
+	background-color: var(--sl-color-gray-7);
+}

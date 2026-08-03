@@ -12,6 +12,7 @@ export default defineConfig({
 		vue(),
 		starlight({
 			title: 'Buct Wiki',
+			customCss: ['./src/styles/index.css'],
 			components: {
 				PageTitle: './src/components/PageTitle.astro',
 				Footer: './src/components/Footer.astro',

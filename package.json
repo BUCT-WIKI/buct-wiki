@@ -4,7 +4,7 @@
   "version": "0.0.1",
   "scripts": {
     "dev": "astro dev",
-    "dev:cloudflare": "node scripts/generate-contributors.mjs && astro dev",
+    "dev:cloudflare": "bash scripts/fetch-content.sh && node --env-file=.env scripts/generate-contributors.mjs && astro dev",
     "start": "astro dev",
     "build": "astro build",
     "build:cloudflare": "bash scripts/fetch-content.sh && node scripts/generate-contributors.mjs && astro build",
