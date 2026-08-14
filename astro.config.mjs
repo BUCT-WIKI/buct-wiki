@@ -1,6 +1,7 @@
 // @ts-check
 import { defineConfig } from 'astro/config';
 import { unified } from '@astrojs/markdown-remark';
+import mdx from '@astrojs/mdx';
 import starlight from '@astrojs/starlight';
 import vue from '@astrojs/vue';
 
@@ -52,6 +53,10 @@ export default defineConfig({
 				},
 				{ label: '测试页', slug: 'test' },
 			],
+		}),
+		mdx({
+			gfm: true,
+			optimize: true,
 		}),
 	],
 });
