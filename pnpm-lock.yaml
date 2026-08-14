@@ -11,6 +11,9 @@ importers:
       '@astrojs/markdown-remark':
         specifier: ^7.2.0
         version: 7.2.0
+      '@astrojs/mdx':
+        specifier: ^5.0.6
+        version: 5.0.6(astro@6.4.4(@types/node@24.13.1)(rollup@4.61.1))
       '@astrojs/starlight':
         specifier: ^0.39.3
         version: 0.39.3(astro@6.4.4(@types/node@24.13.1)(rollup@4.61.1))
