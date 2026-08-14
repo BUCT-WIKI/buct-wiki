@@ -2,183 +2,92 @@
 title: 网址导航
 template: splash
 feedback: false
-hero:
-    tagline: BUCT Wiki 是一个由学生主导建设的校园百科平台，旨在整合北京化工大学校内各类学习、生活、事务办理等信息资源。
 ---
 
-import { Card, CardGrid } from '@astrojs/starlight/components';
+import { CardGrid } from '@astrojs/starlight/components';
+import Card from '../../components/NavigationCard.astro';
 
-export const navigationGroups = [
-	{
-		title: '学校官方',
-		sites: [
-			{ name: '北化官网', url: 'https://www.buct.edu.cn/', description: '北京化工大学官方网站' },
-			{ name: 'i北化', url: 'https://i.buct.edu.cn/', description: '校园统一身份认证与常用服务入口' },
-			{ name: '北化在线', url: 'https://course.buct.edu.cn/', description: '课程学习与教学资源平台' },
-			{ name: '教务管理系统', url: 'https://jwglxt.buct.edu.cn/', description: '选课、成绩和培养方案查询' },
-			{ name: '办事大厅', url: 'https://service.buct.edu.cn/', description: '校内事务在线办理入口' },
-			{ name: '图书馆', url: 'https://library.buct.edu.cn/', description: '馆藏检索与数字资源服务' },
-			{ name: '官方VPN', url: 'https://vpn.buct.edu.cn/', description: '校外访问校内资源' },
-			{ name: '财务处', url: 'https://cwc.buct.edu.cn/', description: '财务通知与相关服务' },
-			{ name: '正版化软件平台', url: 'https://software.buct.edu.cn/', description: '学校正版软件下载与授权' },
-			{ name: '北化OJ', url: 'https://www.buctcoder.com/', description: '在线程序设计与评测平台' },
-			{ name: '研究生院', url: 'https://graduate.buct.edu.cn/', description: '研究生培养与管理信息' },
-			{ name: '四六级报名', url: 'https://cet-bm.neea.edu.cn/', description: '全国大学英语四六级考试报名' },
-			{ name: '学信网', url: 'https://my.chsi.com.cn/', description: '学籍学历信息查询与认证' },
-			{ name: '雨课堂', url: 'https://yuketang.cn', description: '在线教学与课堂互动平台' },
-            { name: '学堂云', url: 'https://buct.yuketang.cn/', description: '在线教学与课堂互动平台' },
-            { name: 'U校园', url: 'https://u.unipus.cn/', description: '智慧教学云平台' },
-		],
-	},
-	{
-		title: '论文',
-		sites: [
-			{ name: '谷歌学术', url: 'https://scholar.google.com/', description: '跨学科学术文献搜索' },
-			{ name: 'arXiv', url: 'https://arxiv.org/', description: '开放获取的学术预印本平台' },
-			{ name: 'Overleaf', url: 'https://www.overleaf.com/', description: '在线 LaTeX 写作与协作' },
-			{ name: 'Zotero', url: 'https://www.zotero.org/', description: '文献收集、管理与引用工具' },
-		],
-	},
-	{
-		title: '大语言模型',
-		sites: [
-			{ name: 'Chatgpt', url: 'https://chatgpt.com/', description: 'OpenAI 推出的通用 AI 助手' },
-			{ name: 'Claude', url: 'https://claude.com/', description: 'Anthropic 推出的 AI 助手' },
-			{ name: 'DeepSeek', url: 'https://deepseek.com/', description: '深度求索推出的大语言模型平台' },
-			{ name: 'Gemini', url: 'https://gemini.google.com/', description: 'Google 推出的多模态 AI 助手' },
-			{ name: 'Grok', url: 'https://grok.com/', description: 'xAI 推出的 AI 助手' },
-		],
-	},
-	{
-		title: '工具',
-		sites: [
-			{ name: 'Steam', url: 'https://steampowered.com/', description: '数字游戏发行与社区平台' },
-			{ name: 'Z-Library', url: 'https://z-library.sk/', description: '在线书籍检索平台' },
-			{ name: 'GeoGebra', url: 'https://www.geogebra.org/', description: '数学绘图、计算与教学工具' },
-			{ name: '卡巴斯基', url: 'https://www.kaspersky.com.cn/', description: '安全软件与网络安全服务' },
-			{ name: 'draw.io', url: 'https://draw.io/', description: '在线流程图与图表制作' },
-			{ name: 'Flaticon', url: 'https://flaticon.com/', description: '图标与贴纸素材库' },
-			{ name: 'SVG Repo', url: 'https://svgrepo.com/', description: '开放 SVG 图标与矢量素材库' },
-			{ name: 'imgtool', url: 'https://imgtool.net/', description: '图片、文档与常用在线工具箱' },
-			{ name: 'Obsidian', url: 'https://obsidian.md/', description: '本地 Markdown 知识库与笔记工具' },
-		],
-	},
-	{
-		title: '编程',
-		sites: [
-			{ name: 'GitHub', url: 'https://github.com/', description: '代码托管与开源协作平台' },
-			{ name: 'Cloudflare', url: 'https://cloudflare.com/', description: '网络、DNS 与网站安全服务' },
-			{ name: 'Stack Overflow', url: 'https://stackoverflow.com/', description: '程序设计问答社区' },
-			{ name: 'Hugging Face', url: 'https://huggingface.co/', description: 'AI 模型、数据集与应用社区' },
-			{ name: 'Linux.do', url: 'https://linux.do/', description: '技术交流与开发者社区' },
-			{ name: 'LeetCode', url: 'https://leetcode.com/', description: '算法题库与编程练习平台' },
-			{ name: '菜鸟教程', url: 'https://www.runoob.com/', description: '编程语言与开发技术入门教程' },
-		],
-	},
-];
+## 学校官方
 
-<div id="website-navigation">
-	{navigationGroups.map((group) => (
-		<section class="navigation-group">
-			<h2>{group.title}</h2>
-			<CardGrid>
-				{group.sites.map((site) => (
-					<div class="navigation-card">
-						<Card title={site.name}>
-							<a
-								class="navigation-card__link"
-								href={site.url}
-								target="_blank"
-								rel="noopener noreferrer"
-								aria-label={`${site.name}：${site.description}`}
-							>
-								<span class="navigation-card__logo" aria-hidden="true">
-									<img
-										src={`${new URL(site.url).origin}/favicon.ico`}
-										alt=""
-										width="32"
-										height="32"
-										loading="lazy"
-										decoding="async"
-										onerror="this.hidden=true; this.nextElementSibling.hidden=false"
-									/>
-									<span hidden>{site.name.slice(0, 1).toUpperCase()}</span>
-								</span>
-								<span class="navigation-card__description">{site.description}</span>
-							</a>
-						</Card>
-					</div>
-				))}
-			</CardGrid>
-		</section>
-	))}
-</div>
+<CardGrid>
+	<Card text="北化官网" desc="北京化工大学官方网站" url="https://www.buct.edu.cn/" icon="https://i.buct.edu.cn/favicon.ico" />
+	<Card text="i北化" desc="校园常用服务入口" url="https://i.buct.edu.cn/" icon="https://i.buct.edu.cn/favicon.ico" />
+	<Card text="北化在线" desc="课程学习与教学资源平台" url="https://course.buct.edu.cn/" icon="https://course.buct.edu.cn/favicon.ico" />
+	<Card text="教务管理系统" desc="选课、成绩和培养方案查询" url="https://jwglxt.buct.edu.cn/" icon="https://jwglxt.buct.edu.cn/favicon.ico" />
+	<Card text="办事大厅" desc="校内事务在线办理入口" url="https://service.buct.edu.cn/" icon="https://service.buct.edu.cn/favicon.ico" />
+	<Card text="图书馆" desc="馆藏检索与数字资源服务" url="https://library.buct.edu.cn/" icon="https://library.buct.edu.cn/favicon.ico" />
+	<Card text="官方VPN" desc="校外访问校内资源" url="https://vpn.buct.edu.cn/" icon="https://vpn.buct.edu.cn/favicon.ico" />
+	<Card text="财务处" desc="财务通知与相关服务" url="https://cwc.buct.edu.cn/" icon="https://cwc.buct.edu.cn/favicon.ico" />
+	<Card text="正版化软件平台" desc="学校正版软件下载与授权" url="https://software.buct.edu.cn/" icon="https://software.buct.edu.cn/favicon.ico" />
+	<Card text="北化OJ" desc="在线程序设计与评测平台" url="https://www.buctcoder.com/" icon="https://www.buctcoder.com/favicon.ico" />
+	<Card text="研究生院" desc="研究生培养与管理信息" url="https://graduate.buct.edu.cn/" icon="https://i.buct.edu.cn/favicon.ico" />
+	<Card text="四六级报名" desc="全国大学英语四六级考试报名" url="https://cet-bm.neea.edu.cn/" icon="https://cet-bm.neea.edu.cn/favicon.ico" />
+	<Card text="学信网" desc="学籍学历信息查询与认证" url="https://my.chsi.com.cn/" icon="https://my.chsi.com.cn/favicon.ico" />
+	<Card text="雨课堂" desc="在线教学与课堂互动平台" url="https://yuketang.cn/" icon="https://yuketang.cn/favicon.ico" />
+	<Card text="学堂云" desc="在线教学与课堂互动平台" url="https://buct.yuketang.cn/" icon="https://buct.yuketang.cn/favicon.ico" />
+	<Card text="U校园" desc="智慧教学云平台" url="https://u.unipus.cn/" icon="https://u.unipus.cn/favicon.ico" />
+</CardGrid>
 
-<style>
-    {`
-    html:has(#website-navigation) {
-        --sl-content-width: 100rem;
+## 论文
+
+<CardGrid>
+	<Card text="谷歌学术" desc="跨学科学术文献搜索" url="https://scholar.google.com/" icon="https://scholar.google.com/favicon.ico" />
+	<Card text="arXiv" desc="开放获取的学术预印本平台" url="https://arxiv.org/" icon="https://arxiv.org/favicon.ico" />
+	<Card text="Overleaf" desc="在线 LaTeX 写作与协作" url="https://www.overleaf.com/" icon="https://www.overleaf.com/favicon.ico" />
+	<Card text="Zotero" desc="文献收集、管理与引用工具" url="https://www.zotero.org/" icon="https://www.zotero.org/favicon.ico" />
+</CardGrid>
+
+## 大语言模型
+
+<CardGrid>
+	<Card text="Chatgpt" desc="OpenAI 推出的通用 AI 助手" url="https://chatgpt.com/" icon="https://chatgpt.com/favicon.ico" />
+	<Card text="Claude" desc="Anthropic 推出的 AI 助手" url="https://claude.com/" icon="https://claude.com/favicon.ico" />
+	<Card text="DeepSeek" desc="深度求索推出的 AI 助手" url="https://deepseek.com/" icon="https://deepseek.com/favicon.ico" />
+	<Card text="Gemini" desc="Google 推出的多模态 AI 助手" url="https://gemini.google.com/" icon="https://gemini.google.com/favicon.ico" />
+	<Card text="Grok" desc="xAI 推出的 AI 助手" url="https://grok.com/" icon="https://grok.com/favicon.ico" />
+</CardGrid>
+
+## 工具
+
+<CardGrid>
+	<Card text="Steam" desc="数字游戏发行与社区平台" url="https://steampowered.com/" icon="https://steampowered.com/favicon.ico" />
+	<Card text="Z-Library" desc="在线书籍检索平台" url="https://z-library.sk/" icon="https://z-library.sk/favicon.ico" />
+	<Card text="GeoGebra" desc="数学绘图、计算与教学工具" url="https://www.geogebra.org/" icon="https://www.geogebra.org/favicon.ico" />
+	<Card text="卡巴斯基" desc="安全软件与网络安全服务" url="https://www.kaspersky.com.cn/" icon="https://www.kaspersky.com.cn/favicon.ico" />
+	<Card text="draw.io" desc="在线流程图与图表制作" url="https://draw.io/" icon="https://draw.io/favicon.ico" />
+	<Card text="Flaticon" desc="图标与贴纸素材库" url="https://flaticon.com/" icon="https://flaticon.com/favicon.ico" />
+	<Card text="SVG Repo" desc="开放 SVG 图标与矢量素材库" url="https://svgrepo.com/" icon="https://svgrepo.com/favicon.ico" />
+	<Card text="imgtool" desc="图片、文档与常用在线工具箱" url="https://imgtool.net/" icon="https://imgtool.net/favicon.ico" />
+	<Card text="Obsidian" desc="本地 Markdown 工具" url="https://obsidian.md/" icon="https://obsidian.md/favicon.ico" />
+</CardGrid>
+
+## 编程
+
+<CardGrid>
+	<Card text="GitHub" desc="代码托管与开源协作平台" url="https://github.com/" icon="https://github.com/favicon.ico" />
+	<Card text="Cloudflare" desc="网络、DNS 与网站安全服务" url="https://cloudflare.com/" icon="https://cloudflare.com/favicon.ico" />
+	<Card text="Stack Overflow" desc="程序设计问答社区" url="https://stackoverflow.com/" icon="https://stackoverflow.com/favicon.ico" />
+	<Card text="Hugging Face" desc="AI 模型、数据集与应用社区" url="https://huggingface.co/" icon="https://huggingface.co/favicon.ico" />
+	<Card text="Linux.do" desc="技术交流与开发者社区" url="https://linux.do/" icon="https://linux.do/favicon.ico" />
+	<Card text="LeetCode" desc="算法题库与编程练习平台" url="https://leetcode.com/" icon="https://leetcode.com/favicon.ico" />
+	<Card text="菜鸟教程" desc="编程语言与开发技术入门教程" url="https://www.runoob.com/" icon="https://www.runoob.com/favicon.ico" />
+</CardGrid>
+
+<div id="website-navigation" />
+
+<style>{`
+html:has(#website-navigation) {
+    --sl-content-width: 90rem;
+}
+
+.card-grid {
+    grid-template-columns: repeat(5, 1fr);
+}
+
+@media (max-width: 50rem) {
+    .card-grid {
+        grid-template-columns: repeat(2, 1fr);
     }
-    html:has(#website-navigation) .hero {
-        padding-block: 0;
-    }
-    #website-navigation .navigation-group + .navigation-group {
-        margin-top: 2.5rem;
-    }
-    #website-navigation .card-grid {
-        grid-template-columns: repeat(auto-fit, minmax(min(100%, 16rem), 1fr));
-    }
-    #website-navigation .navigation-card {
-        position: relative;
-        height: 100%;
-    }
-    #website-navigation .navigation-card .card {
-        height: 100%;
-        padding: 1rem;
-        transition: border-color 0.2s ease, transform 0.2s ease;
-    }
-    #website-navigation .navigation-card:hover .card {
-        border-color: var(--sl-color-accent);
-        transform: translateY(-2px);
-    }
-    #website-navigation .navigation-card__link {
-        display: flex;
-        align-items: center;
-        gap: 0.75rem;
-        color: inherit;
-        text-decoration: none;
-    }
-    #website-navigation .navigation-card__link::before {
-        content: '';
-        position: absolute;
-        inset: 0;
-    }
-    #website-navigation .navigation-card__link:focus-visible::before {
-        outline: 2px solid var(--sl-color-accent);
-        outline-offset: 2px;
-    }
-    #website-navigation .navigation-card__logo {
-        display: grid;
-        width: 2rem;
-        height: 2rem;
-        flex: 0 0 2rem;
-        place-items: center;
-        overflow: hidden;
-        border-radius: 0.4rem;
-        background: var(--sl-color-gray-6);
-        color: var(--sl-color-white);
-        font-size: 0.875rem;
-        font-weight: 700;
-    }
-    #website-navigation .navigation-card__logo img {
-        width: 100%;
-        height: 100%;
-        object-fit: contain;
-    }
-    #website-navigation .navigation-card__description {
-        color: var(--sl-color-gray-3);
-        font-size: var(--sl-text-sm);
-        line-height: 1.5;
-    }
-    `}
+}
+`}
 </style>
