@@ -1,0 +1,26 @@
+---
+import snc from '../../assets/snc-logo.svg';
+import sncWhite from '../../assets/snc-logo-white.svg';
+import buct from '../../assets/buct-wordmark.svg';
+import buctWhite from '../../assets/buct-wordmark-white.svg';
+import symbol from '../../assets/snc-symbol.svg';
+import symbolWhite from '../../assets/snc-symbol-white.svg';
+
+interface Props {
+	kind: 'snc' | 'buct' | 'symbol';
+}
+
+const variants = { snc: [snc, sncWhite], buct: [buct, buctWhite], symbol: [symbol, symbolWhite] };
+const [light, dark] = variants[Astro.props.kind];
+---
+
+<span class="brand-logo">
+	<img class="light" src={light.src} width={light.width} height={light.height} alt="" loading="lazy" />
+	<img class="dark" src={dark.src} width={dark.width} height={dark.height} alt="" loading="lazy" />
+</span>
+
+<style>
+	.brand-logo, img { display: block; width: 100%; height: auto; }
+	.dark, :global([data-theme='dark']) .light { display: none; }
+	:global([data-theme='dark']) .dark { display: block; }
+</style>

@@ -1,9 +1,17 @@
+---
+interface Props {
+	standalone?: boolean;
+}
+
+const { standalone = false } = Astro.props;
+---
+
 <section
-	aria-labelledby="feedback-title"
+	aria-labelledby={standalone ? '_top' : 'feedback-title'}
 	style="margin-top: 3rem; padding: 1.25rem; border: 1px solid var(--sl-color-hairline); border-radius: 0.5rem;"
 >
-	<h2 id="feedback-title" style="margin: 0; font-size: var(--sl-text-xl);">内容反馈</h2>
-	<p style="margin: 0.5rem 0 1.25rem; color: var(--sl-color-gray-3);">发现问题或有改进建议？欢迎告诉我们。</p>
+	{!standalone && <h2 id="feedback-title" style="margin: 0; font-size: var(--sl-text-xl);">内容反馈</h2>}
+	{standalone && <p id="feedback-page" hidden style="margin: 0 0 1.25rem; color: var(--sl-color-gray-2);"></p>}
 
 	<form id="feedback-form" style="display: grid; gap: 0.5rem;">
 		<label for="feedback-type">反馈类型</label>
@@ -53,6 +61,28 @@
 	const form = document.querySelector<HTMLFormElement>('#feedback-form');
 	const status = document.querySelector<HTMLElement>('#feedback-status');
 	const submitButton = form?.querySelector<HTMLButtonElement>('button[type="submit"]');
+	const feedbackPage = document.querySelector<HTMLParagraphElement>('#feedback-page');
+	let feedbackPath = window.location.pathname;
+
+	if (feedbackPage) {
+		feedbackPath = '/';
+		let label = '本站';
+		const source = new URLSearchParams(window.location.search).get('page');
+		if (source) {
+			try {
+				const url = new URL(source, window.location.origin);
+				const decodedPath = decodeURIComponent(url.pathname);
+				if (url.origin === window.location.origin) {
+					feedbackPath = url.pathname;
+					label = decodedPath === '/' ? '首页' : decodedPath;
+				}
+			} catch {
+				// Keep site-wide feedback when the source URL is invalid.
+			}
+		}
+		feedbackPage.textContent = `反馈页面：${label}`;
+		feedbackPage.hidden = false;
+	}
 
 	form?.addEventListener('submit', async (event) => {
 		event.preventDefault();
@@ -67,7 +97,7 @@
 
 		try {
 			const data = await requestD1Function<{ success: boolean }>('/api/feedback', {
-				path: window.location.pathname,
+				path: feedbackPath,
 				type: formData.get('type'),
 				content: formData.get('content'),
 			});
