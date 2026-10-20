@@ -1,0 +1,176 @@
+---
+import ccIcon from '../assets/creative-commons/cc.svg';
+import byIcon from '../assets/creative-commons/by.svg';
+import ncIcon from '../assets/creative-commons/nc.svg';
+import saIcon from '../assets/creative-commons/sa.svg';
+import { contentLicenseUrl, footerLinkGroups, serviceStatusUrl, snc, university } from '../data/footer';
+import BrandLogo from './footer/BrandLogo.astro';
+import FooterIcon from './footer/FooterIcon.astro';
+import FooterSocials from './footer/FooterSocials.astro';
+
+const { feedback } = Astro.locals.starlightRoute.entry.data;
+const feedbackHref = Astro.url.pathname.replace(/\/$/, '') === '/feedback'
+	? '#_top'
+	: feedback ? '#feedback-title' : `/feedback/?page=${encodeURIComponent(Astro.url.pathname)}`;
+function hasDestination(href: string | undefined): boolean {
+	if (!href) return false;
+	try {
+		const url = new URL(href, Astro.url);
+		return ['http:', 'https:'].includes(url.protocol) && !/(^|\.)example\.(com|org|net)$/.test(url.hostname);
+	} catch {
+		return false;
+	}
+}
+const groups = footerLinkGroups.map((group) => ({
+	...group,
+	links: group.links.map((link) => ({ ...link, href: link.feedback ? feedbackHref : link.href }))
+		.filter((link) => hasDestination(link.href)),
+})).filter((group) => group.links.length > 0 || hasDestination(group.more?.href));
+const licenseIcons = [ccIcon, byIcon, ncIcon, saIcon];
+---
+
+<footer class="site-footer" aria-label="网站页脚" data-pagefind-ignore>
+	<!-- The transparent part of the wave reveals the content's actual background. -->
+	<svg class="footer-wave" width="100%" height="8" aria-hidden="true" focusable="false" xmlns="http://www.w3.org/2000/svg">
+		<defs>
+			<pattern id="wiki-footer-wave" width="91" height="8" patternUnits="userSpaceOnUse">
+				<path d="M114 4c-5.067 4.667-10.133 4.667-15.2 0S88.667-.667 83.6 4 73.467 8.667 68.4 4 58.267-.667 53.2 4 43.067 8.667 38 4 27.867-.667 22.8 4 12.667 8.667 7.6 4-2.533-.667-7.6 4s-10.133 4.667-15.2 0S-32.933-.667-38 4V8H114Z" fill="currentColor" />
+			</pattern>
+		</defs>
+		<rect width="100%" height="100%" fill="url(#wiki-footer-wave)" />
+	</svg>
+	<div class="footer-inner">
+		<div class="footer-upper">
+			<section class="footer-brand" aria-label="关于 SNC">
+				<div class="brand-identity">
+					<a class="snc-logo" href={snc.website} aria-label="SNC 官网"><BrandLogo kind="snc" /></a>
+					<p class="slogan">{snc.slogan.map((word) => <span>{word}</span>)}</p>
+				</div>
+				<div class="introduction">{snc.introduction.map((paragraph) => <p>{paragraph}</p>)}</div>
+				<div class="brand-actions">
+					<a href={snc.about}>关于我们 <FooterIcon name="external" size={14} /></a>
+					{hasDestination(snc.join) && <a class="join" href={snc.join}>加入我们 <FooterIcon name="arrow" size={14} /></a>}
+				</div>
+			</section>
+			<FooterSocials />
+		</div>
+		<div class="footer-directory" style={`--columns: ${groups.length}`}>
+			{groups.map((group) => (
+				<nav class:list={['link-group', { separated: group.separated }]} aria-label={group.name}>
+					<h2>{group.name}</h2>
+					<ul role="list">
+						{group.links.map((link) => (
+							<li><a href={link.href}>{link.name}{link.href?.startsWith('https://') && <FooterIcon name="external" size={12} />}</a></li>
+						))}
+					</ul>
+					{hasDestination(group.more?.href) && <a class="more" href={group.more?.href}>{group.more?.name}<FooterIcon name="external" size={12} /></a>}
+				</nav>
+			))}
+		</div>
+		<div class="footer-credits">
+			<div class="campus">
+				<a class="buct-logo" href={university.website} aria-label="北京化工大学官网"><BrandLogo kind="buct" /></a>
+				<a class="school-address" href={university.map} aria-label={`北京化工大学校园地图，学校地址：${university.address}`}>{university.address}</a>
+			</div>
+			<div class="legal">
+				<span class="copyright">© Copyright SNC</span>
+				<a class="license" href={contentLicenseUrl} rel="license" aria-label="CC BY-NC-SA 4.0：署名—非商业性使用—相同方式共享">
+					<span class="license-icons" aria-hidden="true">{licenseIcons.map((icon) => <img src={icon.src} width="16" height="16" alt="" loading="lazy" />)}</span>
+					<span>CC BY-NC-SA 4.0</span>
+				</a>
+			</div>
+			<div class="operations">
+				<a class="status" href={serviceStatusUrl}><FooterIcon name="status" size={14} />服务状态</a>
+				<p class="powered">Powered by <a class="powered-mark" href={snc.website} aria-label="SNC 官网"><BrandLogo kind="symbol" /></a></p>
+			</div>
+			<a class="back-to-top" href="#_top" aria-label="回到顶部"><FooterIcon name="top" size={16} /></a>
+		</div>
+	</div>
+</footer>
+
+<style>
+	.site-footer { position: relative; isolation: isolate; color: var(--md-sys-color-on-surface); background: var(--md-sys-color-surface-container-low); }
+	.footer-wave { position: absolute; inset-inline-start: 0; inset-block-end: 100%; display: block; width: 100%; height: 8px; color: var(--md-sys-color-surface-container-low); pointer-events: none; }
+	.footer-inner { max-width: 80rem; margin-inline: auto; padding-inline: 3rem; }
+	a { color: inherit; text-decoration: none; }
+	a:focus-visible { outline: 2px solid var(--md-sys-color-primary); outline-offset: 4px; border-radius: 0.25rem; }
+	.footer-upper { display: grid; grid-template-columns: minmax(0, 1fr) 24rem; align-items: center; gap: 2rem; padding-block: 0.75rem; }
+	.footer-brand { min-width: 0; padding: 1.25rem 1.5rem; border-radius: 1.75rem; background: var(--md-sys-color-primary-container); color: var(--md-sys-color-on-primary-container); }
+	.brand-identity { display: flex; align-items: center; gap: 2rem; }
+	.snc-logo { display: block; flex: none; width: 12.25rem; max-width: 100%; }
+	.slogan { display: flex; gap: 0.65em; margin: 0; font-size: 1.375rem; font-weight: 500; letter-spacing: 0.025em; line-height: 1.35; white-space: nowrap; }
+	.introduction { margin-top: 0.75rem; max-width: 46rem; font-size: 0.875rem; line-height: 1.85; color: var(--md-sys-color-on-surface-variant); text-wrap: pretty; }
+	.introduction p { margin: 0; font: inherit; }
+	.introduction p + p { margin-top: 0.5rem; }
+	.brand-actions { display: flex; align-items: center; gap: 1.5rem; margin-top: 0.875rem; }
+	.brand-actions a { display: inline-flex; align-items: center; gap: 0.625rem; min-height: 2.375rem; font-size: 0.8125rem; font-weight: 500; white-space: nowrap; }
+	.brand-actions .join { border: 1px solid transparent; padding-inline: 1.25rem; border-radius: 2rem; color: var(--md-sys-color-on-primary); background: var(--md-sys-color-primary); }
+	.join:hover { background: color-mix(in srgb, var(--md-sys-color-primary) 90%, var(--md-sys-color-on-surface)); }
+	.brand-actions a:hover, .link-group a:hover { text-decoration: underline; text-underline-offset: 0.25em; }
+	.footer-directory { display: grid; grid-template-columns: repeat(var(--columns), minmax(0, 1fr)); gap: 2rem; padding: 0.875rem 1.5rem; border-bottom: 1px solid var(--md-sys-color-outline-variant); }
+	.link-group { min-width: 0; }
+	.link-group.separated { padding-inline-start: 1.25rem; border-inline-start: 1px solid var(--md-sys-color-outline-variant); }
+	.link-group h2 { margin: 0 0 0.5rem; font-size: 0.875rem; font-weight: 600; line-height: 1.5; }
+	.link-group ul { display: flex; flex-direction: column; align-items: flex-start; gap: 0; margin: 0; padding: 0; list-style: none; }
+	.link-group li { display: flex; }
+	.link-group a { display: inline-flex; align-items: center; gap: 0.5rem; min-height: 1.625rem; border-radius: 0.25rem; font-size: 0.8125rem; line-height: 1.5; }
+	.link-group .more { min-height: 1.5rem; margin-top: 0.25rem; font-size: 0.75rem; color: var(--md-sys-color-on-surface-variant); }
+	.footer-credits { display: grid; grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr) auto; align-items: center; gap: 1.5rem; min-height: 5rem; padding: 1rem 1.5rem; font-size: 0.6875rem; color: var(--md-sys-color-on-surface-variant); }
+	.campus { display: flex; align-items: center; gap: 0.875rem; min-width: 0; }
+	.buct-logo { display: block; flex: none; width: 8rem; }
+	.school-address { display: inline-flex; align-items: center; min-height: 1.375rem; font-size: 0.6875rem; }
+	.legal { display: flex; align-items: center; justify-self: center; gap: 0.875rem; }
+	.copyright { white-space: nowrap; }
+	.license { display: inline-flex; align-items: center; flex-wrap: wrap; gap: 0.375rem 0.5rem; min-height: 2.25rem; font-size: 0.6875rem; }
+	.license-icons { display: inline-flex; gap: 0.1875rem; }
+	.license-icons img { display: block; width: 1rem; height: 1rem; }
+	:global([data-theme='dark']) .license-icons img { filter: invert(1); }
+	.operations { display: flex; align-items: center; justify-self: end; gap: 1.25rem; }
+	.status { display: flex; align-items: center; gap: 0.375rem; white-space: nowrap; }
+	.powered { display: flex; align-items: center; gap: 0.5rem; margin: 0; white-space: nowrap; }
+	.powered-mark { position: relative; display: block; flex: none; width: 1.25rem; height: 1.25rem; }
+	.back-to-top { display: grid; place-items: center; justify-self: end; flex: none; width: 2.125rem; height: 2.125rem; border: 1px solid var(--md-sys-color-outline-variant); border-radius: 50%; }
+	@media (max-width: 1100px) {
+		.footer-inner { padding-inline: 2rem; }
+		.footer-upper { grid-template-columns: minmax(0, 1fr) 17rem; }
+		.footer-brand { padding: 1.25rem; }
+		.brand-identity { flex-wrap: wrap; gap: 0.75rem 1.25rem; }
+		.slogan { font-size: 1.125rem; }
+		.footer-directory { padding-inline: 1.25rem; gap: 1.25rem; }
+		.link-group.separated { padding-inline-start: 0.875rem; }
+		.link-group .more { font-size: 0.6875rem; }
+		.footer-credits { grid-template-columns: 1fr auto; padding-inline: 1.25rem; gap: 0.75rem 2rem; }
+		.campus { grid-column: 1; grid-row: 1; }
+		.legal { grid-column: 1; grid-row: 2; justify-self: start; }
+		.operations { grid-column: 2; grid-row: 1; }
+		.back-to-top { grid-column: 2; grid-row: 2; }
+	}
+	@media (max-width: 900px) {
+		.footer-directory { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+		.link-group.separated { border: 0; padding-inline-start: 0; }
+	}
+	@media (max-width: 600px) {
+		.footer-inner { padding-inline: 1.25rem; }
+		.footer-upper { grid-template-columns: 1fr; gap: 1.5rem; padding-block: 0.75rem; }
+		.snc-logo { width: 11rem; }
+		.introduction { font-size: 0.875rem; line-height: 1.75; }
+		.brand-actions a { min-height: 2.75rem; }
+		.footer-directory { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1.5rem; }
+		.link-group a, .link-group .more { min-height: 2.5rem; min-width: 2.75rem; }
+		.footer-credits { grid-template-columns: minmax(0, 1fr) auto; gap: 0.5rem 1rem; padding: 1.25rem 0 1rem; }
+		.campus { display: grid; grid-template-columns: minmax(0, 1fr) auto; grid-column: 1 / -1; grid-row: 1; gap: 0.375rem 0.75rem; }
+		.buct-logo { grid-column: 1; grid-row: 1; width: 9rem; }
+		.school-address { grid-column: 1 / -1; grid-row: 2; min-height: 1.75rem; line-height: 1.5; }
+		.legal { grid-column: 1 / -1; grid-row: 2; justify-self: stretch; justify-content: space-between; flex-wrap: wrap; gap: 0 0.75rem; padding-top: 0.375rem; }
+		.license { flex-basis: auto; min-height: 2.75rem; font-size: 0.625rem; gap: 0.375rem; white-space: nowrap; }
+		.operations { grid-column: 1; grid-row: 3; justify-self: stretch; justify-content: space-between; gap: 1rem; }
+		.status { min-height: 2.75rem; }
+		.powered-mark::after { content: ''; position: absolute; width: 2.75rem; height: 2.75rem; inset: 50% auto auto 50%; transform: translate(-50%, -50%); }
+		.back-to-top { grid-column: 2; grid-row: 3; width: 2.75rem; height: 2.75rem; }
+	}
+	@media (max-width: 359px) {
+		.legal { justify-content: flex-start; }
+		.license { flex-basis: 100%; }
+	}
+	@media print { .site-footer { display: none; } }
+</style>

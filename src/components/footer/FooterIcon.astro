@@ -1,0 +1,24 @@
+---
+interface Props {
+	name: 'external' | 'arrow' | 'status' | 'top' | 'qr' | 'close';
+	size?: number;
+}
+
+const { name, size = 16 } = Astro.props;
+const paths = {
+	external: 'M6 18 18 6M6 6h12v12',
+	arrow: 'M4 12h16m-6-6 6 6-6 6',
+	status: 'M3 12h4l3-7 4 14 3-7h4',
+	top: 'M12 19V4m-6 6 6-6 6 6',
+	qr: 'M3 3h6v6H3zM15 3h6v6h-6zM3 15h6v6H3zM15 15h3v3h3v3h-6zM21 12v3M12 3v6M3 12h6M12 12v6',
+	close: 'm6 6 12 12M18 6 6 18',
+};
+---
+
+<svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true" focusable="false">
+	<path d={paths[name]} />
+</svg>
+
+<style>
+	svg { flex: none; }
+</style>

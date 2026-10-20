@@ -1,0 +1,100 @@
+---
+import DefaultPageFrame from '@astrojs/starlight/components/PageFrame.astro';
+import SiteFooter from './SiteFooter.astro';
+import sncSymbol from '../assets/snc-symbol.svg';
+import sncSymbolWhite from '../assets/snc-symbol-white.svg';
+
+const { hasSidebar } = Astro.locals.starlightRoute;
+---
+
+<div
+	class:list={['wiki-frame', { 'has-sidebar': hasSidebar }]}
+	style={{
+		'--snc-watermark-light': `url("${sncSymbol.src}")`,
+		'--snc-watermark-dark': `url("${sncSymbolWhite.src}")`,
+	}}
+>
+	<DefaultPageFrame>
+		<slot name="header" slot="header" />
+		<slot name="sidebar" slot="sidebar" />
+		<slot />
+	</DefaultPageFrame>
+	<SiteFooter />
+</div>
+
+<style>
+	.has-sidebar :global(.main-pane) {
+		background-color: var(--md-sys-color-surface);
+	}
+
+	.has-sidebar :global(.main-pane > main > .content-panel:last-child) {
+		position: relative;
+		isolation: isolate;
+	}
+
+	.has-sidebar :global(.main-pane > main > .content-panel:last-child)::after {
+		content: '';
+		position: absolute;
+		z-index: -1;
+		inset-inline-end: 1.5rem;
+		inset-block-end: 8rem;
+		width: clamp(14rem, 26vw, 20rem);
+		aspect-ratio: 1;
+		background: var(--snc-watermark-light) center / contain no-repeat;
+		opacity: 0.045;
+		pointer-events: none;
+	}
+
+	:global([data-theme='dark']) .has-sidebar :global(.main-pane > main > .content-panel:last-child)::after {
+		background-image: var(--snc-watermark-dark);
+	}
+
+	@media (max-width: 50rem) {
+		.has-sidebar :global(.main-pane > main > .content-panel:last-child)::after {
+			inset-inline-end: 0.5rem;
+			width: 14rem;
+			opacity: 0.035;
+		}
+	}
+
+	@media (min-width: 50rem) {
+		.has-sidebar :global(.page) {
+			display: grid;
+			grid-template-columns: var(--sl-sidebar-width) minmax(0, 1fr);
+			padding-top: var(--sl-nav-height);
+			align-items: stretch;
+		}
+
+		.has-sidebar :global(.page > .sidebar) {
+			grid-column: 1;
+			grid-row: 1;
+			min-width: 0;
+		}
+
+		.has-sidebar :global(.sidebar-pane) {
+			position: sticky;
+			z-index: auto;
+			inset: auto;
+			top: var(--sl-nav-height);
+			width: 100%;
+			height: calc(100dvh - var(--sl-nav-height));
+		}
+
+		.has-sidebar :global(.main-frame) {
+			grid-column: 2;
+			grid-row: 1;
+			min-width: 0;
+			padding-top: 0;
+			padding-inline-start: 0;
+		}
+	}
+
+	@media (min-width: 72rem) {
+		.wiki-frame :global(.right-sidebar) {
+			position: sticky;
+			top: var(--sl-nav-height);
+			padding-top: 0;
+			height: calc(100dvh - var(--sl-nav-height));
+		}
+	}
+</style>

@@ -23,6 +23,7 @@ export default defineConfig({
 			],
 			customCss: ['./src/styles/index.css'],
 			components: {
+				PageFrame: './src/components/PageFrame.astro',
 				PageTitle: './src/components/PageTitle.astro',
 				Footer: './src/components/Footer.astro',
 			},
