@@ -4,6 +4,8 @@ import { unified } from '@astrojs/markdown-remark';
 import mdx from '@astrojs/mdx';
 import starlight from '@astrojs/starlight';
 import vue from '@astrojs/vue';
+import starlightThemeMd3 from 'starlight-theme-md3';
+import { themeSeed, wikiSurfaceColors } from './src/theme.mjs';
 
 // https://astro.build/config
 export default defineConfig({
@@ -14,6 +16,11 @@ export default defineConfig({
 		vue(),
 		starlight({
 			title: 'Buct Wiki',
+			locales: { root: { label: '简体中文', lang: 'zh-CN' } },
+			plugins: [
+				starlightThemeMd3({ seed: themeSeed, variant: 'tonalSpot' }),
+				wikiSurfaceColors(),
+			],
 			customCss: ['./src/styles/index.css'],
 			components: {
 				PageTitle: './src/components/PageTitle.astro',

@@ -1,1 +1,15 @@
 @import './table.css';
+
+:root {
+	--sl-font: 'Source Han Sans SC', 'Noto Sans CJK SC', 'Microsoft YaHei', sans-serif;
+	--sl-color-bg: var(--md-sys-color-surface);
+}
+
+.site-title::before {
+	content: none;
+}
+
+.site-title {
+	gap: 0;
+	font-weight: 600;
+}
