@@ -11,7 +11,7 @@
     "start": "astro dev",
     "build": "astro build",
     "build:cloudflare": "bash scripts/fetch-content.sh && node scripts/generate-contributors.mjs && astro build",
-    "test:preview": "node --test scripts/preview.test.mjs",
+    "test:preview": "node --test scripts/preview.test.mjs scripts/preview-cleanup.test.mjs",
     "preview": "astro preview",
     "astro": "astro"
   },

@@ -8,6 +8,7 @@
 | `.github/workflows/pages-release.yml` | 模板 `main` 更新或手动运行时正式发布 |
 | `.github/workflows/pr-preview-build.yml` | 构建 PR，包括外部 fork |
 | `.github/workflows/pr-preview-deploy.yml` | 校验、发布静态产物，更新 PR 评论和 GitHub Deployment |
+| `.github/workflows/pr-preview-cleanup.yml` | 每日检查保留策略，清理符合条件的旧预览 |
 
 Wrangler 配置是受支持的 Pages 运行时配置的唯一来源；项目创建、生产分支、域名与 Git 自动部署开关不属于这些文件管理的范围。后续修改绑定、兼容日期和普通运行时变量，请提交仓库配置。凭据只放 GitHub Secrets，勿写入配置文件。
 
@@ -30,6 +31,18 @@ Wrangler 配置是受支持的 Pages 运行时配置的唯一来源；项目创�
 构建在无部署凭据的 runner 中运行；发布在独立 runner 上使用默认分支的代码，不执行 PR 内的脚本。发布校验拒绝符号链接和 `_worker.js`，只上传静态文件，不携带正式站的 Functions 或 D1 绑定。已关闭或提交已变化的 PR 会跳过发布。
 
 生产与预览共用可信的 `wrangler.toml`。顶层保留本地与生产环境的 D1 绑定，`[env.preview]` 通过 `d1_databases = []` 显式清空预览绑定；预览环境配置适用于所有预览分支。
+
+## 预览保留策略
+
+`PR preview cleanup` 每日 UTC 03:17（北京时间 11:17）运行，策略定义在 `scripts/preview-cleanup.cjs`：
+
+- 进行中的 PR 保留最新 3 个成功版本，失败或取消的部署保留 7 天；构建中的部署不清理。
+- PR 关闭或合并满 7 天后，其预览进入清理范围。重新打开的 PR 按进行中的 PR 处理。
+- 只处理共用项目中 `environment=preview` 且能查到对应 PR 的部署。只处理 `pr-编号`；正式部署、其他分支与无法确认归属的记录均保留。删除前再次读取部署，确认环境和分支仍满足这些条件。
+- 活动别名指向的部署会保留，Cloudflare 拒绝删除的部署也会保留并报告，**不使用强制删除**。因此关闭的 PR 通常仍可能留下一份最新预览，不能将此策略理解为所有预览都会到期消失。
+- GitHub 构建 Artifact 保留 3 天，与 Cloudflare 部署的保留策略独立。
+
+手动运行工作流默认选择 `plan`，只列出清理清单；选择 `apply` 才执行清理。每天的定时运行执行清理。候选列表及实际结果写入 Actions Summary；执行前会重新核对 PR 和部署状态。失败后可以重跑，已删除的部署不重复处理。
 
 正式构建读取独立内容仓库的最新 `main`；模板 `main` 更新或手动运行时，由 `Pages release` 排队发布。
 
