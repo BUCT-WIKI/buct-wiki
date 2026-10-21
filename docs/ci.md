@@ -5,8 +5,9 @@
 | 配置 | 用途 |
 | --- | --- |
 | `wrangler.toml` | 共用项目、输出目录、兼容日期和环境绑定；`env.preview` 清空 D1 绑定 |
-| `.github/workflows/pages-release.yml` | 模板 `main` 更新或手动运行时正式发布 |
+| `.github/workflows/pages-release.yml` | 模板 `main` 更新、内容更新通知或手动运行时正式发布 |
 | `.github/workflows/pr-preview-build.yml` | 构建 PR，包括外部 fork |
+| `.github/workflows/content-preview-build.yml` | 供内容仓库调用，使用可信模板和内容 PR 的确切提交构建 |
 | `.github/workflows/pr-preview-deploy.yml` | 校验、发布静态产物，更新 PR 评论和 GitHub Deployment |
 | `.github/workflows/pr-preview-cleanup.yml` | 每日检查保留策略，清理符合条件的旧预览 |
 
@@ -15,7 +16,7 @@ Wrangler 配置是受支持的 Pages 运行时配置的唯一来源；项目创�
 ## 首次接入与切换
 
 1. 正式站复用 `wrangler.toml` 中的 `buct-wiki` 项目。切换前，在临时目录使用 `pnpm dlx wrangler@4.151.3 pages download config buct-wiki` 获取线上配置，与仓库配置核对并补齐，避免遗漏原有绑定或变量。不要在仓库根目录直接下载并覆盖现有文件。
-2. 确认现有项目的生产分支为 `main`。正式部署使用 `--branch main`；预览使用 `--branch pr-编号`。所有部署复用 `buct-wiki`，无需创建新项目或配置新域名。
+2. 确认现有项目的生产分支为 `main`。正式部署使用 `--branch main`；模板与内容预览分别使用 `--branch pr-编号` 和 `--branch content-pr-编号`。所有部署复用 `buct-wiki`，无需创建新项目或配置新域名。
 3. 在组织仓库 `BUCT-WIKI/buct-wiki` 的 Settings → Secrets and variables → Actions 中设置：
    - Secret `CLOUDFLARE_API_TOKEN`：仅授予目标账户的 **Account → Cloudflare Pages → Edit** 权限。
    - Variable `CLOUDFLARE_ACCOUNT_ID`：该 Cloudflare 账户的 ID。
@@ -24,7 +25,7 @@ Wrangler 配置是受支持的 Pages 运行时配置的唯一来源；项目创�
 
 ## 预览体验
 
-模板 PR 使用 `pr-编号` 分支别名，例如 `pr-12.buct-wiki.pages.dev`。同一个 PR 的后续提交更新固定地址，每次部署还有独立的 `<部署哈希>.buct-wiki.pages.dev` 地址，便于对照旧版本。
+模板 PR 使用 `pr-编号` 分支别名，例如 `pr-12.buct-wiki.pages.dev`；内容 PR 使用 `content-pr-编号`，例如 `content-pr-12.buct-wiki.pages.dev`。两个仓库的同号 PR 不互相覆盖。同一个 PR 的后续提交更新固定地址，每次部署还有独立的 `<部署哈希>.buct-wiki.pages.dev` 地址，便于对照旧版本。
 
 机器人更新同一条 PR 评论，成功时展示最近成功预览、此次部署和提交编号；构建或发布失败时显示失败提示及对应运行日志。GitHub Deployment 在开始发布时标记为 pending，结束后记录 success 或 failure。过期提交不会覆盖当前 PR 的评论。评论中的网址取自 Wrangler 实际输出；这里的域名仅为示例。
 
@@ -38,13 +39,13 @@ Wrangler 配置是受支持的 Pages 运行时配置的唯一来源；项目创�
 
 - 进行中的 PR 保留最新 3 个成功版本，失败或取消的部署保留 7 天；构建中的部署不清理。
 - PR 关闭或合并满 7 天后，其预览进入清理范围。重新打开的 PR 按进行中的 PR 处理。
-- 只处理共用项目中 `environment=preview` 且能查到对应 PR 的部署。只处理 `pr-编号`；正式部署、其他分支与无法确认归属的记录均保留。删除前再次读取部署，确认环境和分支仍满足这些条件。
+- 只处理共用项目中 `environment=preview` 且能查到对应 PR 的部署。模板仓库只处理 `pr-编号`，内容仓库只处理 `content-pr-编号`；正式部署、其他分支与无法确认归属的记录均保留。删除前再次读取部署，确认环境和分支仍满足这些条件。
 - 活动别名指向的部署会保留，Cloudflare 拒绝删除的部署也会保留并报告，**不使用强制删除**。因此关闭的 PR 通常仍可能留下一份最新预览，不能将此策略理解为所有预览都会到期消失。
 - GitHub 构建 Artifact 保留 3 天，与 Cloudflare 部署的保留策略独立。
 
 手动运行工作流默认选择 `plan`，只列出清理清单；选择 `apply` 才执行清理。每天的定时运行执行清理。候选列表及实际结果写入 Actions Summary；执行前会重新核对 PR 和部署状态。失败后可以重跑，已删除的部署不重复处理。
 
-正式构建读取独立内容仓库的最新 `main`；模板 `main` 更新或手动运行时，由 `Pages release` 排队发布。
+正式构建读取独立内容仓库的最新 `main`。内容仓库发送 `content-updated` 通知后，由模板仓库的 `Pages release` 统一排队发布；也可手动运行。通知不接受任意构建地址或分支参数。
 
 参考：[Pages Wrangler 配置](https://developers.cloudflare.com/pages/functions/wrangler-configuration/)、[CI Direct Upload](https://developers.cloudflare.com/pages/how-to/use-direct-upload-with-continuous-integration/)。
 
@@ -52,3 +53,18 @@ Wrangler 配置是受支持的 Pages 运行时配置的唯一来源；项目创�
 正式和预览构建均沿用原有贡献者脚本，通过工作流自带、仅有 `contents: read` 权限的 `GITHUB_TOKEN` 查询 GitHub 作者资料；构建步骤不接收 Cloudflare 部署凭据。
 
 本地运行 `pnpm run build:cloudflare --mode preview` 可验证预览构建，需要通过环境变量提供 `GITHUB_TOKEN`。预览复用正式构建命令，通过 Astro 内置的 `import.meta.env.MODE === 'preview'` 关闭反馈与阅读量请求，保留生产构建行为，无需自定义预览环境变量。`pnpm run test:preview` 检查预览产物校验、贡献者元数据和内容更新；测试使用模拟 API，无需真实 Token。
+
+## 内容仓库接入
+
+`BUCT-WIKI/buct-wiki-content` 中的配套工作流负责触发，调用本仓库 `main` 上的共享工作流：
+
+- `pr-preview-build.yml`：`pull_request` 触发，无部署凭据；使用模板 `main` 和事件对应的内容合并提交构建，不执行内容仓库中的工作流或构建脚本。
+- `pr-preview-deploy.yml`：`workflow_run` 触发，使用可信模板代码发布，评论及 Deployment 写回内容 PR。
+- `pr-preview-cleanup.yml`：每日 UTC 03:47 清理内容预览，策略与模板预览相同。
+- `trigger-pages-release.yml`：内容 `main` 更新后发送 `repository_dispatch`，替代旧的 Cloudflare Deploy Hook。
+
+先合入模板仓库的共享工作流，再合入内容仓库的入口。内容仓库也需要 `CLOUDFLARE_API_TOKEN` Secret 和 `CLOUDFLARE_ACCOUNT_ID` Variable，可通过限定这两个仓库可用的组织级配置共享。构建入口不传递 Cloudflare Secret。
+
+在内容仓库另设 `TEMPLATE_DISPATCH_TOKEN` Secret：使用仅授权 `BUCT-WIKI/buct-wiki`、具有 **Contents: write** 权限的 fine-grained PAT（需符合组织授权策略）。内容仓库默认的 `GITHUB_TOKEN` 无权跨仓库发送通知。旧 `CLOUDFLARE_DEPLOY_HOOK` 不再使用。通知发送成功只表示已请求发布，实际构建结果应在模板仓库的 `Pages release` 中查看。
+
+共享工作流跟随受维护的模板 `main`；外部 PR 不能指定模板版本或发布配置。两份 fork PR 仅供审阅，正式发布和清理的仓库白名单不会在个人 fork 中运行。

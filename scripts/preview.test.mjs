@@ -116,6 +116,19 @@ test('deployments only target an open PR at the exact build commit in this repos
 	assert.equal(await previewDeploy.findPullRequest(github, context), null);
 });
 
+test('content PR matching uses the content repository, not a same-number template PR', async () => {
+	const pr = { number: 12, state: 'open',
+		head: { sha: 'content-sha', ref: 'article', repo: { full_name: 'author/content' } },
+		base: { ref: 'main', repo: { full_name: 'BUCT-WIKI/buct-wiki-content' } } };
+	const context = { repo: { owner: 'BUCT-WIKI', repo: 'buct-wiki-content' },
+		payload: { workflow_run: { event: 'pull_request', conclusion: 'success',
+			path: '.github/workflows/pr-preview-build.yml', head_sha: 'content-sha',
+			head_repository: pr.head.repo, head_branch: 'article' } } };
+	const github = { rest: { repos: { listPullRequestsAssociatedWithCommit: {} } },
+		paginate: async () => [pr, { ...pr, base: { ...pr.base, repo: { full_name: 'BUCT-WIKI/buct-wiki' } } }] };
+	assert.equal(await previewDeploy.findPullRequest(github, context), pr);
+});
+
 function reportingFixture() {
 	const context = {
 		repo: { owner: 'BUCT-WIKI', repo: 'buct-wiki' }, serverUrl: 'https://github.com', runId: 100,
@@ -274,4 +287,20 @@ test('content fetching updates clean checkouts and preserves local edits', () =>
 	assert.notEqual(result.status, 0);
 	assert.match(result.stderr, /local changes/);
 	assert.equal(readFileSync(join(destination, 'article.md'), 'utf8'), '# Local edit\n');
+});
+
+test('content fetching accepts an exact PR commit and preserves its history', () => {
+	const source = sourceRepository();
+	const selected = git(source, 'rev-parse', 'HEAD');
+	writeFileSync(join(source, 'article.md'), '# Later main\n');
+	git(source, 'add', 'article.md');
+	git(source, 'commit', '-m', 'Advance main after preview event');
+	const destination = join(mkdtempSync(join(fixtures, 'commit-checkout-')), 'content');
+	const result = run('bash', ['scripts/fetch-content.sh'], root, {
+		CONTENT_GIT_URL: source, CONTENT_GIT_REF: selected, CONTENT_DIR: destination,
+	});
+	assert.equal(result.status, 0, result.stderr);
+	assert.equal(git(destination, 'rev-parse', 'HEAD'), selected);
+	assert.equal(readFileSync(join(destination, 'article.md'), 'utf8'), '# Original\n');
+	assert.equal(git(destination, 'log', '-1', '--format=%s'), 'Add article');
 });

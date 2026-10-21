@@ -3,6 +3,7 @@ import { test } from 'node:test';
 import { mkdirSync, mkdtempSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 import previewCleanup from './preview-cleanup.cjs';
+import previewRepositories from './preview-repositories.cjs';
 
 const { projectName, planCleanup, cloudflareClient, cleanup } = previewCleanup;
 const now = Date.parse('2026-10-20T12:00:00Z');
@@ -71,6 +72,29 @@ test('production, unrelated branches, missing PRs and uncertain dates are never 
 	];
 	const pulls = new Map([[1, pull(1, 'closed')], [3, pull(3, 'closed')]]);
 	assert.deepEqual(planCleanup(versions, pulls, now), []);
+});
+
+test('template and content cleanup never select each other’s deployments with the same PR number', async () => {
+	const template = deployment('template', 1, 10);
+	const content = deployment('content', 1, 10, {
+		deployment_trigger: { metadata: { branch: 'content-pr-1' } },
+	});
+	for (const [repository, expected] of [['buct-wiki', template], ['buct-wiki-content', content]]) {
+		const { args, calls } = harness();
+		args.context.repo.repo = repository;
+		args.cf.list = async () => [template, content];
+		args.cf.get = async id => {
+			assert.equal(id, expected.id);
+			return expected;
+		};
+		args.github.rest.pulls.get = async () => ({
+			data: { ...pull(1, 'closed'), base: { repo: { full_name: `BUCT-WIKI/${repository}` } } },
+		});
+		const results = await cleanup({ ...args, dryRun: false });
+		assert.deepEqual(calls, [expected.id]);
+		assert.equal(results[0].result, 'deleted');
+	}
+	assert.throws(() => previewRepositories.previewPrefix('untrusted/repo'), /Unsupported preview repository/);
 });
 
 function harness({ changedPr, liveDeployment, rejectDeletion } = {}) {

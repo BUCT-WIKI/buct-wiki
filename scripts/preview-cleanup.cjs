@@ -1,5 +1,6 @@
 const { readFileSync } = require('node:fs');
 const { parse } = require('@iarna/toml');
+const { previewPrefix } = require('./preview-repositories.cjs');
 
 const DAY = 24 * 60 * 60 * 1000;
 const POLICY = { successfulVersions: 3, closedDays: 7, failedDays: 7 };
@@ -142,7 +143,7 @@ async function removeUnchangedDeployment(cf, previous, core) {
 }
 
 async function cleanup({ github, context, core, dryRun = true, cf, now = Date.now() }) {
-	const prefix = 'pr-';
+	const prefix = previewPrefix(`${context.repo.owner}/${context.repo.repo}`);
 	const project = projectName('wrangler.toml');
 	cf ||= cloudflareClient({
 		project, account: process.env.CLOUDFLARE_ACCOUNT_ID,

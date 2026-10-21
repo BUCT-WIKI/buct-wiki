@@ -1,6 +1,10 @@
 name: PR preview deploy
 
 on:
+  workflow_call:
+    secrets:
+      CLOUDFLARE_API_TOKEN:
+        required: true
   workflow_run:
     workflows: [PR preview build]
     types: [completed]
@@ -18,7 +22,7 @@ concurrency:
 jobs:
   deploy:
     if: >-
-      github.repository == 'BUCT-WIKI/buct-wiki' &&
+      (github.repository == 'BUCT-WIKI/buct-wiki' || github.repository == 'BUCT-WIKI/buct-wiki-content') &&
       github.event.workflow_run.event == 'pull_request'
     runs-on: ubuntu-latest
     timeout-minutes: 15
@@ -26,6 +30,8 @@ jobs:
       # workflow_run uses the default branch, never the pull request checkout.
       - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
         with:
+          repository: BUCT-WIKI/buct-wiki
+          ref: ${{ github.repository == 'BUCT-WIKI/buct-wiki' && github.sha || 'main' }}
           path: trusted
           persist-credentials: false
       - uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6
@@ -41,11 +47,12 @@ jobs:
         with:
           script: |
             const { findPullRequest } = require('./trusted/scripts/preview-deploy.cjs');
+            const { previewPrefix } = require('./trusted/scripts/preview-repositories.cjs');
             const pr = await findPullRequest(github, context);
             if (pr) {
               core.setOutput('number', pr.number);
               core.setOutput('sha', pr.head.sha);
-              core.setOutput('branch', `pr-${pr.number}`);
+              core.setOutput('branch', `${previewPrefix(context.payload.repository.full_name)}${pr.number}`);
             } else {
               core.notice('No open PR matches this build; skipping deployment.');
             }
