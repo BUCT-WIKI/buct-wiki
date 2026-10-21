@@ -6,31 +6,36 @@ repository="${CONTENT_GIT_URL:-https://github.com/BUCT-WIKI/buct-wiki-content.gi
 ref="${CONTENT_GIT_REF:-main}"
 content_dir="${CONTENT_DIR:-src/content/docs/content}"
 
-if [[ -z "$content_dir" || "$content_dir" == "/" || "$content_dir" == "." ]]; then
-	echo "Refusing to replace unsafe content directory: $content_dir" >&2
+project_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+cd "$project_dir"
+content_dir="$(realpath -m "$content_dir")"
+
+if [[ "$content_dir" != "$project_dir/"* ]]; then
+	echo "Content directory must be inside the project: $content_dir" >&2
 	exit 1
 fi
 
-content_parent="$(dirname "$content_dir")"
-mkdir -p "$content_parent"
-temporary_dir="$(mktemp -d "$content_parent/.content-clone.XXXXXX")"
-
-cleanup() {
-	if [[ -n "${temporary_dir:-}" && -d "$temporary_dir" ]]; then
-		rm -rf -- "$temporary_dir"
+if [[ ! -e "$content_dir" ]]; then
+	mkdir -p "$(dirname "$content_dir")"
+	echo "Initializing $repository ($ref) in $content_dir"
+	git init "$content_dir"
+	git -C "$content_dir" remote add origin "$repository"
+else
+	if [[ "$(git -C "$content_dir" rev-parse --show-toplevel)" != "$content_dir" ]]; then
+		echo "Content directory is not a standalone Git checkout: $content_dir" >&2
+		exit 1
 	fi
-}
-trap cleanup EXIT
+	if [[ -n "$(git -C "$content_dir" status --porcelain)" ]]; then
+		echo "Content checkout has local changes; refusing to overwrite them." >&2
+		exit 1
+	fi
+	if [[ "$(git -C "$content_dir" remote get-url origin)" != "$repository" ]]; then
+		echo "Content checkout belongs to a different repository." >&2
+		exit 1
+	fi
+fi
 
-echo "Cloning $repository ($ref) into $content_dir"
-git clone \
-	--branch "$ref" \
-	--single-branch \
-	"$repository" \
-	"$temporary_dir"
-
-rm -rf -- "$content_dir"
-mv "$temporary_dir" "$content_dir"
-temporary_dir=""
+git -C "$content_dir" fetch --no-tags origin "$ref"
+git -C "$content_dir" switch --detach FETCH_HEAD
 
 echo "Content repository is ready."
