@@ -2,7 +2,7 @@ export async function requestD1Function<T>(
 	endpoint: string,
 	body: Record<string, unknown>
 ): Promise<T | null> {
-	if (import.meta.env.DEV) {
+	if (import.meta.env.DEV || import.meta.env.MODE === 'preview') {
 		return null;
 	}
 

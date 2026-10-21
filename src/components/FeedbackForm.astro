@@ -4,6 +4,7 @@ interface Props {
 }
 
 const { standalone = false } = Astro.props;
+const isPreview = import.meta.env.MODE === 'preview';
 ---
 
 <section
@@ -12,6 +13,7 @@ const { standalone = false } = Astro.props;
 >
 	{!standalone && <h2 id="feedback-title" style="margin: 0; font-size: var(--sl-text-xl);">内容反馈</h2>}
 	{standalone && <p id="feedback-page" hidden style="margin: 0 0 1.25rem; color: var(--sl-color-gray-2);"></p>}
+	{isPreview && <p style="margin: 0 0 1.25rem; color: var(--sl-color-gray-2);">预览环境不会提交反馈。</p>}
 
 	<form id="feedback-form" style="display: grid; gap: 0.5rem;">
 		<label for="feedback-type">反馈类型</label>
@@ -103,7 +105,9 @@ const { standalone = false } = Astro.props;
 			});
 
 			if (data === null) {
-				status.textContent = '开发环境未提交反馈。';
+				status.textContent = import.meta.env.MODE === 'preview'
+					? '预览环境不会提交反馈。'
+					: '开发环境未提交反馈。';
 				return;
 			}
 
